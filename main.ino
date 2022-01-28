@@ -16,7 +16,7 @@ bool initLED;
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   led1 = A0;
   led2 = A1;
   led3 = A2;
@@ -38,7 +38,8 @@ void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   // Print a message to the LCD.
-  lcd.print("hello, world!");
+  lcd.print("hi");
+  Serial.print("no"); 
 }
 
 void loop() {
@@ -47,6 +48,7 @@ void loop() {
   lcd.setCursor(0, 1);
   // print the number of seconds since reset:
   lcd.print(millis() / 1000);
+  Serial.print("joe");
   //manualCycle();
   allOn();
 }
