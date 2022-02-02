@@ -11,11 +11,19 @@ bool toggle;
 int future;
 int currLED;
 bool initLED;
+int buzzer;
+int g4 = 392;
+int e4 = 329;
+int c4 = 261;
+int d4 = 293;
+int a4 = 440;
+int b4 = 493;
+int f4 = 349;
 
 //initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-void setup() {
+void setup() {  
   Serial.begin(115200);
   led1 = A0;
   led2 = A1;
@@ -28,6 +36,8 @@ void setup() {
   future = 0;
   currLED = 0;
   initLED = true;
+  buzzer = 9;
+  pinMode(buzzer,OUTPUT);
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
@@ -36,7 +46,7 @@ void setup() {
   pinMode(button2, INPUT);
   pinMode(button3, INPUT);
   // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
+  //lcd.begin(16, 2);
   // Print a message to the LCD.
   lcd.print("hi");
   Serial.print("no"); 
@@ -49,8 +59,10 @@ void loop() {
   // print the number of seconds since reset:
   lcd.print(millis() / 1000);
   Serial.print("joe");
-  //manualCycle();
+
+  manualCycle();
   allOn();
+  //playLondonBridge();
 }
 
 void allOn()
@@ -106,3 +118,65 @@ void manualCycle() {
   }
 }
  
+//BUZZER METHODS
+
+void playLondonBridge()
+{
+  int tone[] = {g4,  a4,  g4,  f4,  e4,  f4,  g4,  0};
+  int durs[] = {500, 500, 500, 500, 500, 500, 500, 500};
+  
+  playTones(buzzer, tone, durs, 8);
+}
+
+
+/**
+ * playTones:  Plays an array of tones.  
+ * Each for a specified duration.
+ * The Arduino can do something else while calling this method.
+ * 
+ * Precondtions:  1)  tones and durations have the same number of elements
+ *                2)  elements of durations are in milliseconds
+ *                3)  length is the length of tones and durations
+ */
+void playTones(int buzz, int tones[], int durations[], int length){
+  if(sizeof(tones)/sizeof(int) == sizeof(durations)/sizeof(int))
+  {
+    long sum = 0;
+    for(int i = 0; i<length;i++)
+    {
+      sum += durations[i];
+    }
+    //calculate which index we should be working with
+    int musicI = 0;
+    for(musicI = 0; millis()%sum>=sumUntil(durations,musicI,length);musicI++)//super bananas
+    {    }
+    if(millis()%sum<sumUntil(durations,musicI,length))    //bananas
+    {
+      if(tones[musicI]!= 0)
+      {
+        tone(buzz, tones[musicI]);
+      }
+      else
+      {
+        noTone(buzz);
+      }
+    }
+  }
+}
+/**
+ * sumUntil:  returns the sum of all the values from 0 to index 
+ * inside of arr
+ * This is a helper method for playTones
+ * 
+ * Precondtions:  1)  0<=index<=length-1
+ *                2)  length is the length of arr
+ */
+long sumUntil(int arr[], int index,int length)
+{
+  long sum = 0;
+  for(int i = 0;i<=index;i++)
+  {
+    sum+=arr[i];
+  }
+  return sum;
+}
