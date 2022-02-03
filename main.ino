@@ -20,11 +20,44 @@ int a4 = 440;
 int b4 = 493;
 int f4 = 349;
 
+byte newChar0[8] = {
+        B01110,
+        B01110,
+        B01110,
+        B00100,
+        B11111,
+        B00100,
+        B01010,
+        B10001
+};
+
+byte newChar1[8] = {
+        B01110,
+        B01110,
+        B01110,
+        B10100,
+        B01110,
+        B00101,
+        B11010,
+        B00010
+};
+
+byte newChar2[8] = {
+        B01110,
+        B01110,
+        B01110,
+        B00101,
+        B01110,
+        B10100,
+        B01011,
+        B01000
+};
+
 //initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {  
-  Serial.begin(115200);
+  Serial.begin(115200);                                                                              
   led1 = A0;
   led2 = A1;
   led3 = A2;
@@ -46,23 +79,77 @@ void setup() {
   pinMode(button2, INPUT);
   pinMode(button3, INPUT);
   // set up the LCD's number of columns and rows:
-  //lcd.begin(16, 2);
+  lcd.begin(16, 2);  
+  lcd.createChar(0,newChar0);
+  lcd.createChar(1,newChar1);
+  lcd.createChar(2,newChar2);
   // Print a message to the LCD.
-  lcd.print("hi");
-  Serial.print("no"); 
+  //lcd.print("hi");
+  //Serial.print("no"); 
 }
+
+
+
 
 void loop() {
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor(0, 1);
+  
+  lcd.setCursor(1, 1);
+  
+  lcd.setCursor(1, 0);
   // print the number of seconds since reset:
-  lcd.print(millis() / 1000);
-  Serial.print("joe");
+  //lcd.print(millis() / 1000);
 
   manualCycle();
-  allOn();
+  //allOn();
   //playLondonBridge();
+
+  loopCharacter();
+}
+
+void loopCharacter() {
+  long time = millis();
+  long timeUnit = time / 500;
+  switch(timeUnit % 2) {
+    case 0:
+      lcd.write(byte(1));
+    break;
+
+    case 1:
+      lcd.write(byte(2));
+    break;
+  }
+}
+
+void jump() {
+  int bs = digitalRead(button2);
+  long currTime = millis();
+  bool coolDown = currTime >= future;
+  
+  if(bs == 1 && coolDown) {
+    if(initLED) initLED = false;
+  	if(currLED == 2) currLED = 0;
+    else currLED++;
+    future = currTime + 1000;
+  }
+  
+  switch(currLED) {
+  	case 0:
+    	digitalWrite(led1, HIGH);
+    	digitalWrite(led3, LOW);
+    break;
+    
+    case 1:
+        digitalWrite(led2, HIGH);
+    	digitalWrite(led1, LOW);
+    break;
+    
+    case 2:
+        digitalWrite(led3, HIGH);
+    	digitalWrite(led2, LOW);
+    break;
+  }
 }
 
 void allOn()
