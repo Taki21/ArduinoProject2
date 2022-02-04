@@ -11,6 +11,7 @@ bool toggle;
 int future;
 int currLED;
 bool initLED;
+long timeLeft;
 int buzzer;
 int g4 = 392;
 int e4 = 329;
@@ -20,7 +21,9 @@ int a4 = 440;
 int b4 = 493;
 int f4 = 349;
 
-byte newChar0[8] = {
+// character animation frames
+
+byte charFrame0[8] = {
         B01110,
         B01110,
         B01110,
@@ -31,7 +34,7 @@ byte newChar0[8] = {
         B10001
 };
 
-byte newChar1[8] = {
+byte charFrame1[8] = {
         B01110,
         B01110,
         B01110,
@@ -42,7 +45,7 @@ byte newChar1[8] = {
         B00010
 };
 
-byte newChar2[8] = {
+byte charFrame2[8] = {
         B01110,
         B01110,
         B01110,
@@ -51,6 +54,19 @@ byte newChar2[8] = {
         B10100,
         B01011,
         B01000
+};
+
+// obstacles frames
+
+byte obsFrame0[8] = {
+      B11111,
+      B11111,
+      B11111,
+      B11111,
+      B11111,
+      B11111,
+      B11111,
+      B11111
 };
 
 //initialize the library with the numbers of the interface pins
@@ -80,12 +96,12 @@ void setup() {
   pinMode(button3, INPUT);
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);  
-  lcd.createChar(0,newChar0);
-  lcd.createChar(1,newChar1);
-  lcd.createChar(2,newChar2);
-  // Print a message to the LCD.
-  //lcd.print("hi");
-  //Serial.print("no"); 
+  lcd.createChar(0, charFrame0);
+  lcd.createChar(1, charFrame1);
+  lcd.createChar(2, charFrame2);
+  
+  lcd.createChar(3, obsFrame0); // byte(3)
+  
 }
 
 
@@ -95,9 +111,9 @@ void loop() {
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
   
-  lcd.setCursor(1, 1);
+  //lcd.setCursor(1, 1);
   
-  lcd.setCursor(1, 0);
+  //lcd.setCursor(1, 0);
   // print the number of seconds since reset:
   //lcd.print(millis() / 1000);
 
@@ -106,6 +122,8 @@ void loop() {
   //playLondonBridge();
 
   loopCharacter();
+
+  beginnerObstacleMove();
 }
 
 void loopCharacter() {
@@ -119,6 +137,20 @@ void loopCharacter() {
     case 1:
       lcd.write(byte(2));
     break;
+  }
+}
+
+void beginnerObstacleMove()
+{
+  timeLeft = millis() + 2000;
+  int evenTimeLeft = (timeLeft - (timeLeft % 16));
+  int evenTime = (int) ((timeLeft - (timeLeft % 16)) / 16);
+  for(int i = evenTimeLeft; i >= 0; i-=evenTime) {
+    if(i % 16 == 0) {
+      int cursorPos = (i / 16) - 1;
+      lcd.setCursor(cursorPos,0);
+      lcd.write(byte(3));
+    }
   }
 }
 
