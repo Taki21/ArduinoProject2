@@ -20,6 +20,29 @@ int d4 = 293;
 int a4 = 440;
 int b4 = 493;
 int f4 = 349;
+boolean setRand;
+long randTime;
+int mode;
+long time;
+long mil;
+long timeElapsed = 0;
+boolean gameEnd;
+int score = 0;
+
+// obstacle postion
+int obstacle1Pos = 15;
+
+// empty frame
+int emptyFrame[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+};
 
 // character animation frames
 
@@ -99,13 +122,16 @@ void setup() {
   lcd.createChar(0, charFrame0);
   lcd.createChar(1, charFrame1);
   lcd.createChar(2, charFrame2);
-  
   lcd.createChar(3, obsFrame0); // byte(3)
-  
+  randTime = 200;
+  setRand = false;
+  mode = 0;
+  time = 0;
+  mil = 0;
+  gameEnd = false;
+  lcd.setCursor(0,1);
+  lcd.print("xxxxxxxxxxxxxxx");
 }
-
-
-
 
 void loop() {
   // set the cursor to column 0, line 1
@@ -121,14 +147,26 @@ void loop() {
   //allOn();
   //playLondonBridge();
 
-  loopCharacter();
+  if(gameEnd == false) {
+    jump();
 
-  beginnerObstacleMove();
+    beginnerObstacleMove();
+  } else {
+
+  }
+  
+  gameOver();
 }
 
-void loopCharacter() {
+void changeDifficulty()
+{
+  
+}
+
+void loopCharacter(int animationFrame) {
   long time = millis();
   long timeUnit = time / 500;
+  lcd.setCursor(2, animationFrame);
   switch(timeUnit % 2) {
     case 0:
       lcd.write(byte(1));
@@ -142,46 +180,80 @@ void loopCharacter() {
 
 void beginnerObstacleMove()
 {
-  timeLeft = millis() + 2000;
-  int evenTimeLeft = (timeLeft - (timeLeft % 16));
-  int evenTime = (int) ((timeLeft - (timeLeft % 16)) / 16);
-  for(int i = evenTimeLeft; i >= 0; i-=evenTime) {
-    if(i % 16 == 0) {
-      int cursorPos = (i / 16) - 1;
-      lcd.setCursor(cursorPos,0);
-      lcd.write(byte(3));
-    }
-  }
-}
 
+  if(obstacle1Pos < 2) score += 10;
+
+  mil = millis() - timeElapsed;
+
+  if(millis() % 250 == 0) {
+    score += 1;  
+    lcd.setCursor(10,0);
+    lcd.print(score);
+  }
+
+  time = mil / randTime;
+  int i = (int) (time % 16);
+  
+  
+  if(16 - i == 16) {
+    lcd.setCursor(0,1);
+    lcd.print("x");
+    if(time > 0) {
+      randTime = 100;//random(50, 100);
+      timeElapsed = millis();
+    }
+  } else {
+    lcd.setCursor(16-i,1);
+    lcd.print("x");
+    obstacle1Pos = 16 - i;
+  }
+  lcd.setCursor(15-i,1);
+  lcd.print('o');
+  
+}
 void jump() {
   int bs = digitalRead(button2);
   long currTime = millis();
-  bool coolDown = currTime >= future;
   
-  if(bs == 1 && coolDown) {
-    if(initLED) initLED = false;
-  	if(currLED == 2) currLED = 0;
-    else currLED++;
-    future = currTime + 1000;
+  if(bs == 1) {
+    //lcd.setCursor(0,0);
+    //lcd.print(bs);
+
+    lcd.setCursor(2,1);
+    lcd.print("x");
+    loopCharacter(0);
+    
+    
+    future = currTime + 200;
+  } else {
+    lcd.setCursor(2,0);
+    lcd.print(" ");
+    lcd.setCursor(0,0);
+    lcd.print(bs);
+    loopCharacter(1);
+  }
+
+}
+
+void gameOver()
+{
+  if(digitalRead(button2) == 0 && obstacle1Pos == 2) {
+    if(gameEnd == false) lcd.clear();
+    lcd.setCursor(3,1);
+    lcd.print("Game Over!");
+    gameEnd = true;
+  } 
+  
+  if (digitalRead(button2) == 1 && gameEnd == true) {
+    lcd.clear();
+    lcd.setCursor(0,1);
+    score = 0;
+    lcd.print("xxxxxxxxxxxxxxx");
+    timeElapsed = millis();
+    obstacle1Pos = 15;
+    gameEnd = false;
   }
   
-  switch(currLED) {
-  	case 0:
-    	digitalWrite(led1, HIGH);
-    	digitalWrite(led3, LOW);
-    break;
-    
-    case 1:
-        digitalWrite(led2, HIGH);
-    	digitalWrite(led1, LOW);
-    break;
-    
-    case 2:
-        digitalWrite(led3, HIGH);
-    	digitalWrite(led2, LOW);
-    break;
-  }
 }
 
 void allOn()
