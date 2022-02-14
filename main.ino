@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 int led1;
@@ -13,6 +14,10 @@ int currLED;
 bool initLED;
 long timeLeft;
 int buzzer;
+int c5 = 523;
+int g5 = 783;
+int d5 = 587;
+int e5 = 659;
 int g4 = 392;
 int e4 = 329;
 int c4 = 261;
@@ -28,6 +33,8 @@ long mil;
 long timeElapsed = 0;
 boolean gameEnd;
 int score = 0;
+boolean pointsGiven = false;
+boolean jumping = false;
 
 // obstacle postion
 int obstacle1Pos = 15;
@@ -96,7 +103,7 @@ byte obsFrame0[8] = {
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {  
-  Serial.begin(115200);                                                                              
+  Serial.begin(9600);                                                                              
   led1 = A0;
   led2 = A1;
   led3 = A2;
@@ -131,21 +138,13 @@ void setup() {
   gameEnd = false;
   lcd.setCursor(0,1);
   lcd.print("xxxxxxxxxxxxxxx");
+  //Serial.println("dfsfksdf");
 }
 
 void loop() {
-  // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
-  
-  //lcd.setCursor(1, 1);
-  
-  //lcd.setCursor(1, 0);
-  // print the number of seconds since reset:
-  //lcd.print(millis() / 1000);
-
   manualCycle();
   //allOn();
-  //playLondonBridge();
+  //playSong();
 
   if(gameEnd == false) {
     jump();
@@ -160,7 +159,7 @@ void loop() {
 
 void changeDifficulty()
 {
-  
+  //if(digitalRead(button1))
 }
 
 void loopCharacter(int animationFrame) {
@@ -178,22 +177,21 @@ void loopCharacter(int animationFrame) {
   }
 }
 
-void beginnerObstacleMove()
-{
-
-  if(obstacle1Pos < 2) score += 10;
-
+void beginnerObstacleMove() {
   mil = millis() - timeElapsed;
 
-  if(millis() % 250 == 0) {
-    score += 1;  
+  time = mil / randTime;
+  int i = (int) (time % 16);
+    
+  if(obstacle1Pos < 2 && pointsGiven == false) {  
+    score += 10;
+    pointsGiven = true;
+    //score += 1;  
     lcd.setCursor(10,0);
     lcd.print(score);
   }
 
-  time = mil / randTime;
-  int i = (int) (time % 16);
-  
+  if(obstacle1Pos > 2) pointsGiven = false;
   
   if(16 - i == 16) {
     lcd.setCursor(0,1);
@@ -215,22 +213,23 @@ void jump() {
   int bs = digitalRead(button2);
   long currTime = millis();
   
-  if(bs == 1) {
-    //lcd.setCursor(0,0);
-    //lcd.print(bs);
-
-    lcd.setCursor(2,1);
-    lcd.print("x");
-    loopCharacter(0);
-    
-    
-    future = currTime + 200;
-  } else {
+  if (bs == 0 || jumping == false) {
     lcd.setCursor(2,0);
     lcd.print(" ");
-    lcd.setCursor(0,0);
-    lcd.print(bs);
     loopCharacter(1);
+  }
+
+  if(bs == 1) {
+    //lcd.setCursor(0,0);
+    //lcd.print(bs);    
+    if(jumping == false) future = currTime + randTime;
+    if(currTime < future) {
+      lcd.setCursor(2,1);
+      lcd.print("x");
+      loopCharacter(0);
+      jumping = true;
+    } else jumping = false;
+
   }
 
 }
@@ -311,12 +310,12 @@ void manualCycle() {
  
 //BUZZER METHODS
 
-void playLondonBridge()
+void playSong()
 {
-  int tone[] = {g4,  a4,  g4,  f4,  e4,  f4,  g4,  0};
-  int durs[] = {500, 500, 500, 500, 500, 500, 500, 500};
+  int tone[] = {c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,   d5, g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5};
+  int durs[] = {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
   
-  playTones(buzzer, tone, durs, 8);
+  playTones(buzzer, tone, durs, sizeof(tone)/sizeof(int));
 }
 
 
