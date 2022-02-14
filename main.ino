@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 int led1;
@@ -29,7 +28,6 @@ long mil;
 long timeElapsed = 0;
 boolean gameEnd;
 int score = 0;
-boolean pointsGiven = false;
 
 // obstacle postion
 int obstacle1Pos = 15;
@@ -98,7 +96,7 @@ byte obsFrame0[8] = {
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {  
-  Serial.begin(9600);                                                                              
+  Serial.begin(115200);                                                                              
   led1 = A0;
   led2 = A1;
   led3 = A2;
@@ -133,7 +131,6 @@ void setup() {
   gameEnd = false;
   lcd.setCursor(0,1);
   lcd.print("xxxxxxxxxxxxxxx");
-  Serial.println("dfsfksdf");
 }
 
 void loop() {
@@ -181,21 +178,22 @@ void loopCharacter(int animationFrame) {
   }
 }
 
-void beginnerObstacleMove() {
+void beginnerObstacleMove()
+{
+
+  if(obstacle1Pos < 2) score += 10;
+
   mil = millis() - timeElapsed;
 
-  time = mil / randTime;
-  int i = (int) (time % 16);
-    
-  if(obstacle1Pos < 2 && pointsGiven == false) {  
-    score += 10;
-    pointsGiven = true;
-    //score += 1;  
+  if(millis() % 250 == 0) {
+    score += 1;  
     lcd.setCursor(10,0);
     lcd.print(score);
   }
 
-  if(obstacle1Pos > 2) pointsGiven = false;
+  time = mil / randTime;
+  int i = (int) (time % 16);
+  
   
   if(16 - i == 16) {
     lcd.setCursor(0,1);
@@ -219,17 +217,19 @@ void jump() {
   
   if(bs == 1) {
     //lcd.setCursor(0,0);
-    //lcd.print(bs);    
-    future = currTime + 200;
-    if(currTime < future) {
-      lcd.setCursor(2,1);
-      lcd.print("x");
-      loopCharacter(0);
-    }
+    //lcd.print(bs);
 
-  } else if (bs == 0 || currTime >= future) {
+    lcd.setCursor(2,1);
+    lcd.print("x");
+    loopCharacter(0);
+    
+    
+    future = currTime + 200;
+  } else {
     lcd.setCursor(2,0);
     lcd.print(" ");
+    lcd.setCursor(0,0);
+    lcd.print(bs);
     loopCharacter(1);
   }
 
