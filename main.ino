@@ -144,7 +144,8 @@ void setup() {
 void loop() {
   manualCycle();
   //allOn();
-  //playSong();
+  playSong();
+  playSong2();
 
   if(gameEnd == false) {
     jump();
@@ -255,6 +256,25 @@ void gameOver()
   
 }
 
+/*
+void jump2(){
+  int ogMil = millis();
+  if(digitalRead(button2) == 1)
+  {
+    lcd.setCursor(2,0);
+    lcd.print(" ");
+    loopCharacter(1);
+    int newMil = millis();
+    if(newMil - ogMil > 400)
+    {
+      lcd.setCursor(2,1);
+      lcd.print("x");
+      loopCharacter(0);
+    }
+  }
+}*/
+
+
 void allOn()
 {
   digitalWrite(led1, HIGH);
@@ -312,12 +332,18 @@ void manualCycle() {
 
 void playSong()
 {
-  int tone[] = {c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,   d5, g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5};
-  int durs[] = {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
-  
+  int tone[] = {c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,   d5, g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5,  f4,  c5,  f4,  c5,  f4,  c5,  f4,  c5,  c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,  d5,  g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5,  f4,  c5,  f4,  c5,  f4,  c5,  f4,  c5,  c5};
+  int durs[] = {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
+
   playTones(buzzer, tone, durs, sizeof(tone)/sizeof(int));
 }
 
+void playSong2() {
+  int tone[] = {200, 300, 400, 500, 600};
+  int durs[] = {200, 200, 200, 200, 200};
+
+  playTones(buzzer, tone, durs, sizeof(tone)/sizeof(int));
+}
 
 /**
  * playTones:  Plays an array of tones.  
@@ -338,9 +364,9 @@ void playTones(int buzz, int tones[], int durations[], int length){
     }
     //calculate which index we should be working with
     int musicI = 0;
-    for(musicI = 0; millis()%sum>=sumUntil(durations,musicI,length);musicI++)//super bananas
+    for(musicI = 0; millis()%sum>=sumUntil(durations,musicI,length);musicI++)
     {    }
-    if(millis()%sum<sumUntil(durations,musicI,length))    //bananas
+    if(millis()%sum<sumUntil(durations,musicI,length))
     {
       if(tones[musicI]!= 0)
       {
