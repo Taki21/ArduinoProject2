@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 int led1;
@@ -146,6 +145,7 @@ void loop() {
   //allOn();
   playSong();
   playSong2();
+  checkButtons();
 
   if(gameEnd == false) {
     jump();
@@ -289,12 +289,9 @@ void checkButtons()
   int buttonState2 = digitalRead(button2);
   int buttonState3 = digitalRead(button3);
   
-  Serial.print("Button State 1 = ");
-  Serial.println(buttonState1);
-  Serial.print("Button State 2 = ");
-  Serial.println(buttonState2);
-  Serial.print("Button State 3 = ");
-  Serial.println(buttonState3);
+  if(buttonState1 == 1) Serial.println("1");
+  else if(buttonState2 == 1) Serial.println("2");
+  else if(buttonState3 == 1) Serial.println("3");
 }
 
 void manualCycle() {
@@ -305,25 +302,25 @@ void manualCycle() {
   
   if(bs == 1 && coolDown) {
     if(initLED) initLED = false;
-  	if(currLED == 2) currLED = 0;
+    if(currLED == 2) currLED = 0;
     else currLED++;
     future = currTime + 1000;
   }
   
   switch(currLED) {
-  	case 0:
-    	digitalWrite(led1, HIGH);
-    	digitalWrite(led3, LOW);
+    case 0:
+      digitalWrite(led1, HIGH);
+      digitalWrite(led3, LOW);
     break;
     
     case 1:
         digitalWrite(led2, HIGH);
-    	digitalWrite(led1, LOW);
+      digitalWrite(led1, LOW);
     break;
     
     case 2:
         digitalWrite(led3, HIGH);
-    	digitalWrite(led2, LOW);
+      digitalWrite(led2, LOW);
     break;
   }
 }
