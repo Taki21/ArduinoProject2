@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 int led1;
@@ -34,6 +35,11 @@ boolean gameEnd;
 int score = 0;
 boolean pointsGiven = false;
 boolean jumping = false;
+
+long jumpTime = 0;
+boolean newPress = false; 
+
+long gameOverTimeout = 0;
 
 // obstacle postion
 int obstacle1Pos = 15;
@@ -99,7 +105,7 @@ byte obsFrame0[8] = {
 };
 
 //initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); 
 
 void setup() {  
   Serial.begin(9600);                                                                              
@@ -137,19 +143,23 @@ void setup() {
   gameEnd = false;
   lcd.setCursor(0,1);
   lcd.print("xxxxxxxxxxxxxxx");
+  lcd.setCursor(10,0);
+  lcd.print(0);
   //Serial.println("dfsfksdf");
 }
 
 void loop() {
+  digitalWrite(led4, HIGH);
+  digitalWrite(led1, HIGH);
   manualCycle();
   //allOn();
-  playSong();
-  playSong2();
+  //playSong();
+  //playSong2();
   checkButtons();
 
   if(gameEnd == false) {
     jump();
-
+    gameOverTimeout = millis() + 1000;
     beginnerObstacleMove();
   } else {
 
@@ -210,41 +220,57 @@ void beginnerObstacleMove() {
   lcd.print('o');
   
 }
+
 void jump() {
   int bs = digitalRead(button2);
-  long currTime = millis();
-  
-  if (bs == 0 || jumping == false) {
+  long currTime = millis();      
+  if(jumpTime == 0) jumpTime = currTime;
+
+  if (bs == 0) {
+    jumping = false;
     lcd.setCursor(2,0);
     lcd.print(" ");
-    loopCharacter(1);
+    loopCharacter(1);  
+    jumpTime = currTime;
+    newPress = true;
+    digitalWrite(led2, LOW);
   }
 
   if(bs == 1) {
     //lcd.setCursor(0,0);
     //lcd.print(bs);    
-    if(jumping == false) future = currTime + randTime;
-    if(currTime < future) {
+    if(newPress) {
+      jumpTime = currTime + 1000;
+      newPress = false;
+    }
+    if(jumpTime > currTime) {
+      jumping = true;
+      digitalWrite(led2, HIGH);
       lcd.setCursor(2,1);
       lcd.print("x");
       loopCharacter(0);
-      jumping = true;
-    } else jumping = false;
-
+    } else {
+      jumping = false;
+      lcd.setCursor(2,0);
+      lcd.print(" ");
+      loopCharacter(1);
+      digitalWrite(led2, LOW);
+    }
   }
 
 }
 
 void gameOver()
 {
-  if(digitalRead(button2) == 0 && obstacle1Pos == 2) {
+  if(jumping == false && obstacle1Pos == 2) {
     if(gameEnd == false) lcd.clear();
     lcd.setCursor(3,1);
     lcd.print("Game Over!");
     gameEnd = true;
   } 
   
-  if (digitalRead(button2) == 1 && gameEnd == true) {
+  if (digitalRead(button2) == 1 && gameEnd == true && gameOverTimeout < millis()) {
+    gameOverTimeout = 0;
     lcd.clear();
     lcd.setCursor(0,1);
     score = 0;
@@ -304,7 +330,7 @@ void manualCycle() {
     if(initLED) initLED = false;
     if(currLED == 2) currLED = 0;
     else currLED++;
-    future = currTime + 1000;
+    future = currTime + 300;
   }
   
   switch(currLED) {
