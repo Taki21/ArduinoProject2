@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 int led1;
@@ -109,13 +108,10 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {  
   Serial.begin(9600);                                                                              
-  led1 = A0;
-  led2 = A1;
-  led3 = A2;
-  led4 = A3;
-  button1 = 13;
-  button2 = 8;
-  button3 = 7;
+  led1 = 8;
+  led2 = 7;
+  led3 = 6;
+  button2 = 13;
   toggle = false;
   future = 0;
   currLED = 0;
@@ -125,10 +121,7 @@ void setup() {
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
-  pinMode(led4, OUTPUT);
-  pinMode(button1, INPUT);
   pinMode(button2, INPUT);
-  pinMode(button3, INPUT);
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);  
   lcd.createChar(0, charFrame0);
@@ -149,9 +142,9 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(led4, HIGH);
   digitalWrite(led1, HIGH);
-  manualCycle();
+  digitalWrite(led3, HIGH);
+  //manualCycle();
   //allOn();
   //playSong();
   //playSong2();
