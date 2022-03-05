@@ -39,6 +39,7 @@ long jumpTime = 0;
 boolean newPress = false; 
 
 long gameOverTimeout = 0;
+int gamesPlayed = 1;
 
 // obstacle postion
 int obstacle1Pos = 15;
@@ -143,27 +144,21 @@ void setup() {
 
 void loop() {
   digitalWrite(led1, HIGH);
-  digitalWrite(led3, HIGH);
   //manualCycle();
   //allOn();
-  playSong();
   //playSong2();
   checkButtons();
 
   if(gameEnd == false) {
     jump();
+    playSong();
     gameOverTimeout = millis() + 1000;
     beginnerObstacleMove();
   } else {
-
+    playSong2();
   }
   
   gameOver();
-}
-
-void changeDifficulty()
-{
-  //if(digitalRead(button1))
 }
 
 void loopCharacter(int animationFrame) {
@@ -257,9 +252,18 @@ void gameOver()
 {
   if(jumping == false && obstacle1Pos == 2) {
     if(gameEnd == false) lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("GP:");
+    lcd.setCursor(4,0);
+    lcd.print(gamesPlayed);
+    lcd.setCursor(7,0);
+    lcd.print("S:");
+    lcd.setCursor(9,0);
+    lcd.print(score);
     lcd.setCursor(3,1);
     lcd.print("Game Over!");
     gameEnd = true;
+    digitalWrite(led3, HIGH);
   } 
   
   if (digitalRead(button2) == 1 && gameEnd == true && gameOverTimeout < millis()) {
@@ -271,28 +275,11 @@ void gameOver()
     timeElapsed = millis();
     obstacle1Pos = 15;
     gameEnd = false;
+    digitalWrite(led3, LOW);  
+    gamesPlayed++;
   }
   
 }
-
-/*
-void jump2(){
-  int ogMil = millis();
-  if(digitalRead(button2) == 1)
-  {
-    lcd.setCursor(2,0);
-    lcd.print(" ");
-    loopCharacter(1);
-    int newMil = millis();
-    if(newMil - ogMil > 400)
-    {
-      lcd.setCursor(2,1);
-      lcd.print("x");
-      loopCharacter(0);
-    }
-  }
-}*/
-
 
 void allOn()
 {
@@ -348,15 +335,15 @@ void manualCycle() {
 
 void playSong()
 {
-  int tone[] = {a4,  0,  a4,  0,  a4,  a4,  a4,  f4,  e4,  d4,  d4,  d4,  0, d4,  e4, d5,   b4,  0,  b4,  0,  b4,  a4,  b4,  e5,  c5,  a4,  0,  a4,  0, a4,  b4,  0,  g4,  0,  g4,  a4,  0,  a4,  0,  a4,  a4,  a4,  f4, e4,  d4,  0,  d4,  0,  d4,  0,   d4,  e4,  d5,  b4,  0,  b4,  0,  b4, a4,  b4,  e5,  c5,  a4,  0,  a4,  0,  a4,  b4,  0,  g4,  0,  g4,  a4,  0, a4,  0,  a4,  a4,  a4,  f4,  e4,  d4,  0,  d4,  0,  d4,  0,   d4, e4,  d5,  b4,  0,  b4,  0,  b4,  a4,  b4,  e5,  c5,  a4,  0,  a4,  0, a4,  b4,  0,  g4,  0,  g4,  a4,  0,  a4,  0,  a4,  a4,  0,  a4,  0,  a4, a4,  0,  a4,  0,  a4,  a4,  0,  a4,  0,  a4,  a4,  a4,  a4,  a4,  a4, a4, a4, a4,a4, a4, a4, a4, a4, a4, a4, a4, a4, a4, a4, a4};
-  int durs[] = {200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 200, 200, 100, 200, 200, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 50, 200, 50, 200, 100, 200, 200, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 50, 200, 50, 200, 100, 200, 200, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 50, 200, 50, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 50, 50, 50, 50, 50, 50, 50, 50};
+  int tone[] = {c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,   d5, g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5,  f4,  c5,  f4,  c5,  f4,  c5,  f4,  c5,  c5,  g5,  c5,  g5,  c5,  g5,  c5,  g5,  g4,  d5,  g4,  d5,  g4,  d5,  g4,  d5,  a4,  e5,  a4,  e5,  a4,  e5,  a4,  e5,  f4,  c5,  f4,  c5,  f4,  c5,  f4,  c5,  c5};
+  int durs[] = {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
 
   playTones(buzzer, tone, durs, sizeof(tone)/sizeof(int));
 }
 
 void playSong2() {
-  int tone[] = {200, 300, 400, 500, 600};
-  int durs[] = {200, 200, 200, 200, 200};
+  int tone[] = {0};
+  int durs[] = {200};
 
   playTones(buzzer, tone, durs, sizeof(tone)/sizeof(int));
 }
